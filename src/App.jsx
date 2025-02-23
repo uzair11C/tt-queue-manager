@@ -36,7 +36,7 @@ function App() {
         // Remove first two teams and add winner back at front and loser at end
         setQueue((prevQueue) => [winner, ...prevQueue.slice(2), loser]);
         setCurrentMatch([]);
-        setTimeout(startMatch, 0);
+        // setTimeout(startMatch, 0);
     };
 
     const removeTeam = (index) => {
