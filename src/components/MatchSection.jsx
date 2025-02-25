@@ -5,6 +5,8 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
     const startMatch = () => {
         if (queue.length >= 2) {
             setCurrentMatch([queue[0], queue[1]]);
+        } else {
+            window.alert("****** Insufficient Teams ******");
         }
     };
 
@@ -33,7 +35,7 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
             alignItems="center"
         >
             <Box width="50%" textAlign="center">
-                <Typography variant="h3" fontWeight={800} mb={1}>
+                <Typography variant="h3" fontWeight={800} mb={2}>
                     Current Match
                 </Typography>
                 {currentMatch.length === 2 ? (
@@ -52,13 +54,11 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                             alignItems="center"
                             width="100%"
                         >
-                            <Typography variant="h4">
+                            <Typography variant="h4" fontWeight={600}>
                                 {currentMatch[0]}
                             </Typography>
-                            <Typography variant="h4" fontWeight={800}>
-                                vs
-                            </Typography>
-                            <Typography variant="h4">
+                            <Typography variant="h4">vs</Typography>
+                            <Typography variant="h4" fontWeight={600}>
                                 {currentMatch[1]}
                             </Typography>
                         </Stack>
@@ -82,10 +82,12 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                                 {currentMatch[1]} Win
                             </Button>
                         </Stack>
-                        <Typography variant="h6" mt={3}>
-                            <b style={{ fontSize: "larger" }}>Next Team:</b>{" "}
-                            {queue[2] && queue[2]}
-                        </Typography>
+                        {queue[2] && (
+                            <Typography variant="h6" mt={3}>
+                                <b style={{ fontSize: "larger" }}>Next Team:</b>{" "}
+                                {queue[2]}
+                            </Typography>
+                        )}
                     </Paper>
                 ) : (
                     <Button

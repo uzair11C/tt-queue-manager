@@ -19,10 +19,13 @@ function App() {
     return (
         <ThemeProvider theme={darkTheme}>
             <Box
-                display="flex"
                 height="100vh"
                 bgcolor="background.default"
                 color="text.primary"
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                }}
             >
                 <TeamRegistration
                     queue={queue}

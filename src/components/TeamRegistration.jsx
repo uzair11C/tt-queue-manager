@@ -1,14 +1,16 @@
 import {
     Button,
+    Divider,
     Drawer,
     IconButton,
     List,
     ListItem,
+    ListItemIcon,
     Paper,
     TextField,
     Typography,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { Delete, DragIndicator } from "@mui/icons-material";
 import { useState } from "react";
 import PropTypes from "prop-types";
 
@@ -26,6 +28,8 @@ const TeamRegistration = ({
             setQueue([...queue, `${player1} / ${player2}`]);
             setPlayer1("");
             setPlayer2("");
+        } else {
+            window.alert("Please enter the team members");
         }
     };
 
@@ -76,10 +80,10 @@ const TeamRegistration = ({
             variant="permanent"
             anchor="left"
             sx={{
-                width: 300,
+                width: { xs: "100%", md: "25%" },
                 flexShrink: 0,
                 [`& .MuiDrawer-paper`]: {
-                    width: 300,
+                    width: { xs: "100%", md: "25%" },
                     boxSizing: "border-box",
                     padding: 2,
                     bgcolor: "#1e1e1e",
@@ -108,13 +112,13 @@ const TeamRegistration = ({
                 placeholder="Enter second player"
                 margin="dense"
                 size="small"
-                InputProps={{ style: { color: "#ffffff" } }}
+                slotProps={{ input: { style: { color: "#ffffff" } } }}
             />
             <Button
-                onClick={addTeam}
                 fullWidth
                 variant="contained"
                 color="info"
+                onClick={addTeam}
                 sx={{ mt: "5px" }}
             >
                 Add Team
@@ -125,8 +129,8 @@ const TeamRegistration = ({
             <Paper
                 variant="outlined"
                 sx={{
-                    p: 2,
-                    height: 400,
+                    p: 1,
+                    height: "100%",
                     overflowY: "auto",
                     bgcolor: "#2c2c2c",
                 }}
@@ -147,8 +151,24 @@ const TeamRegistration = ({
                                     <Delete fontSize="small" color="error" />
                                 </IconButton>
                             }
-                            sx={{ cursor: "move", color: "#ffffff" }}
+                            divider={<Divider flexItem />}
+                            sx={{
+                                cursor: "move",
+                                color: "#ffffff",
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                            }}
                         >
+                            <ListItemIcon>
+                                <DragIndicator
+                                    fontSize="small"
+                                    // sx={{
+                                    //     mr: "10px",
+                                    // }}
+                                />
+                            </ListItemIcon>
+                            {index + 1}. &nbsp;
                             {team}
                         </ListItem>
                     ))}
