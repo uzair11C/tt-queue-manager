@@ -11,9 +11,20 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
     const handleWin = (winnerIndex) => {
         const winner = currentMatch[winnerIndex];
         const loser = currentMatch[1 - winnerIndex];
-        setQueue((prevQueue) => [winner, ...prevQueue.slice(2), loser]);
-        setCurrentMatch([]);
+
+        setQueue((prevQueue) => {
+            const updatedQueue = [winner, ...prevQueue.slice(2), loser];
+
+            if (updatedQueue.length >= 2) {
+                setCurrentMatch([updatedQueue[0], updatedQueue[1]]);
+            } else {
+                setCurrentMatch([]);
+            }
+
+            return updatedQueue;
+        });
     };
+
     return (
         <Box
             flexGrow={1}
@@ -79,7 +90,7 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                         color="success"
                         sx={{ mt: 2 }}
                     >
-                        Start Next Match
+                        Start Match
                     </Button>
                 )}
             </Box>

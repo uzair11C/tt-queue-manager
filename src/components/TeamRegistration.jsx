@@ -98,7 +98,7 @@ const TeamRegistration = ({
                 placeholder="Enter first player"
                 margin="dense"
                 size="small"
-                InputProps={{ style: { color: "#ffffff" } }}
+                slotProps={{ input: { style: { color: "#ffffff" } } }}
             />
             <TextField
                 fullWidth
