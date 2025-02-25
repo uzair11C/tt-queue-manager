@@ -52,13 +52,13 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                             alignItems="center"
                             width="100%"
                         >
-                            <Typography variant="h5">
+                            <Typography variant="h4">
                                 {currentMatch[0]}
                             </Typography>
                             <Typography variant="h4" fontWeight={800}>
                                 vs
                             </Typography>
-                            <Typography variant="h5">
+                            <Typography variant="h4">
                                 {currentMatch[1]}
                             </Typography>
                         </Stack>
@@ -82,6 +82,10 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                                 {currentMatch[1]} Win
                             </Button>
                         </Stack>
+                        <Typography variant="h6" mt={3}>
+                            <b style={{ fontSize: "larger" }}>Next Team:</b>{" "}
+                            {queue[2] && queue[2]}
+                        </Typography>
                     </Paper>
                 ) : (
                     <Button
