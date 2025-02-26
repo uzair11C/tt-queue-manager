@@ -123,8 +123,27 @@ const TeamRegistration = ({
             >
                 Add Team
             </Button>
-            <Typography variant="subtitle1" fontWeight={700} mt={2}>
+            <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                mt={2}
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    pb: 1,
+                }}
+            >
                 Queue
+                <IconButton
+                    sx={{ border: "1px solid red" }}
+                    onClick={() => {
+                        setQueue([]);
+                        setCurrentMatch([]);
+                    }}
+                >
+                    <Delete fontSize="small" color="error" />
+                </IconButton>
             </Typography>
             <Paper
                 variant="outlined"
