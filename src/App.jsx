@@ -13,8 +13,12 @@ const darkTheme = createTheme({
 });
 
 function App() {
-    const [queue, setQueue] = useState([]);
-    const [currentMatch, setCurrentMatch] = useState([]);
+    const [queue, setQueue] = useState(
+        JSON.parse(localStorage.getItem("queue")) || []
+    );
+    const [currentMatch, setCurrentMatch] = useState(
+        queue.length >= 2 ? [queue[0], queue[1]] : []
+    );
 
     return (
         <ThemeProvider theme={darkTheme}>

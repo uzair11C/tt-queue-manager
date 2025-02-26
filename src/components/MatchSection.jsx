@@ -52,6 +52,7 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                             direction="row"
                             justifyContent="space-between"
                             alignItems="center"
+                            spacing={2}
                             width="100%"
                         >
                             <Typography variant="h4" fontWeight={600}>

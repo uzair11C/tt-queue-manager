@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import { Delete, DragIndicator } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 const TeamRegistration = ({
@@ -75,6 +75,16 @@ const TeamRegistration = ({
         }
     };
 
+    const clearQueue = () => {
+        setQueue([]);
+        setCurrentMatch([]);
+        localStorage.removeItem("queue");
+    };
+
+    useEffect(() => {
+        localStorage.setItem("queue", JSON.stringify(queue));
+    }, [queue]);
+
     return (
         <Drawer
             variant="permanent"
@@ -137,10 +147,7 @@ const TeamRegistration = ({
                 Queue
                 <IconButton
                     sx={{ border: "1px solid red" }}
-                    onClick={() => {
-                        setQueue([]);
-                        setCurrentMatch([]);
-                    }}
+                    onClick={clearQueue}
                 >
                     <Delete fontSize="small" color="error" />
                 </IconButton>
@@ -180,12 +187,7 @@ const TeamRegistration = ({
                             }}
                         >
                             <ListItemIcon>
-                                <DragIndicator
-                                    fontSize="small"
-                                    // sx={{
-                                    //     mr: "10px",
-                                    // }}
-                                />
+                                <DragIndicator fontSize="small" />
                             </ListItemIcon>
                             {index + 1}. &nbsp;
                             {team}
