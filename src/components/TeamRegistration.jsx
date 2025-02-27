@@ -19,15 +19,23 @@ const TeamRegistration = ({
     setQueue,
     currentMatch,
     setCurrentMatch,
+    supabase,
 }) => {
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
 
-    const addTeam = () => {
+    const addTeam = async () => {
         if (player1.trim() !== "" && player2.trim() !== "") {
             setQueue([...queue, `${player1} / ${player2}`]);
             setPlayer1("");
             setPlayer2("");
+            const { data, error } = await supabase
+                .from("Queue")
+                .insert({ team_name: `${player1} / ${player2}` })
+                .select();
+
+            console.log("now: ", data);
+            console.log("errror: ", error);
         } else {
             window.alert("Please enter the team members");
         }
@@ -190,7 +198,7 @@ const TeamRegistration = ({
                                 <DragIndicator fontSize="small" />
                             </ListItemIcon>
                             {index + 1}. &nbsp;
-                            {team}
+                            {team.team_name}
                         </ListItem>
                     ))}
                 </List>

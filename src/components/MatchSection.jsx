@@ -56,11 +56,11 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                             width="100%"
                         >
                             <Typography variant="h4" fontWeight={600}>
-                                {currentMatch[0]}
+                                {currentMatch[0].team_name}
                             </Typography>
                             <Typography variant="h4">vs</Typography>
                             <Typography variant="h4" fontWeight={600}>
-                                {currentMatch[1]}
+                                {currentMatch[1].team_name}
                             </Typography>
                         </Stack>
                         <Stack
@@ -73,20 +73,20 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                                 onClick={() => handleWin(0)}
                                 variant="contained"
                             >
-                                {currentMatch[0]} Win
+                                {currentMatch[0].team_name} Win
                             </Button>
                             <Button
                                 onClick={() => handleWin(1)}
                                 variant="contained"
                                 color="secondary"
                             >
-                                {currentMatch[1]} Win
+                                {currentMatch[1].team_name} Win
                             </Button>
                         </Stack>
                         {queue[2] && (
                             <Typography variant="h6" mt={3}>
                                 <b style={{ fontSize: "larger" }}>Next Team:</b>{" "}
-                                {queue[2]}
+                                {queue[2].team_name}
                             </Typography>
                         )}
                     </Paper>

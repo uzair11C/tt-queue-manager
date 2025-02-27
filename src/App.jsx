@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, createTheme, ThemeProvider } from "@mui/material";
 import TeamRegistration from "./components/TeamRegistration";
 import MatchSection from "./components/MatchSection";
 import "./App.css";
+import { supabase } from "./supabaseClient";
 
 const darkTheme = createTheme({
     palette: {
@@ -13,12 +14,21 @@ const darkTheme = createTheme({
 });
 
 function App() {
-    const [queue, setQueue] = useState(
-        JSON.parse(localStorage.getItem("queue")) || []
-    );
-    const [currentMatch, setCurrentMatch] = useState(
-        queue.length >= 2 ? [queue[0], queue[1]] : []
-    );
+    const [queue, setQueue] = useState([]);
+    const [currentMatch, setCurrentMatch] = useState([]);
+
+    const GetQueue = async () => {
+        let { data } = await supabase.from("Queue").select("*");
+
+        console.log("Queue: ", data);
+
+        setQueue(data);
+        setCurrentMatch(data.length >= 2 ? [data[0], data[1]] : []);
+    };
+
+    useEffect(() => {
+        GetQueue();
+    }, []);
 
     return (
         <ThemeProvider theme={darkTheme}>
@@ -36,6 +46,7 @@ function App() {
                     setQueue={setQueue}
                     currentMatch={currentMatch}
                     setCurrentMatch={setCurrentMatch}
+                    supabase={supabase}
                 />
                 <MatchSection
                     queue={queue}
