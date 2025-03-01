@@ -4,6 +4,7 @@ import TeamRegistration from "./components/TeamRegistration";
 import MatchSection from "./components/MatchSection";
 import "./App.css";
 import { supabase } from "./supabaseClient";
+import LoadingDialog from "./components/Dialogs/LoadingDialog";
 
 const darkTheme = createTheme({
     palette: {
@@ -16,14 +17,22 @@ const darkTheme = createTheme({
 function App() {
     const [queue, setQueue] = useState([]);
     const [currentMatch, setCurrentMatch] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const GetQueue = async () => {
-        let { data } = await supabase.from("Queue").select("*");
+        try {
+            setLoading(true);
+            let { data } = await supabase.from("Queue").select("*");
 
-        console.log("Queue: ", data);
+            console.log("Queue: ", data);
 
-        setQueue(data);
-        setCurrentMatch(data.length >= 2 ? [data[0], data[1]] : []);
+            setQueue(data);
+            setCurrentMatch(data.length >= 2 ? [data[0], data[1]] : []);
+        } catch (error) {
+            console.log("error in refresh queue: ", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -44,8 +53,8 @@ function App() {
                 <TeamRegistration
                     queue={queue}
                     setQueue={setQueue}
-                    currentMatch={currentMatch}
-                    setCurrentMatch={setCurrentMatch}
+                    // currentMatch={currentMatch}
+                    // setCurrentMatch={setCurrentMatch}
                     supabase={supabase}
                 />
                 <MatchSection
@@ -53,8 +62,10 @@ function App() {
                     setQueue={setQueue}
                     currentMatch={currentMatch}
                     setCurrentMatch={setCurrentMatch}
+                    supabase={supabase}
                 />
             </Box>
+            <LoadingDialog open={loading} message="Refreshing queue....." />
         </ThemeProvider>
     );
 }

@@ -1,18 +1,41 @@
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import PropTypes from "prop-types";
+import MessageDialog from "./Dialogs/MessageDialog";
+import { useState } from "react";
+import LoadingDialog from "./Dialogs/LoadingDialog";
 
-const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
+const MatchSection = ({
+    queue,
+    setQueue,
+    currentMatch,
+    setCurrentMatch,
+    supabase,
+}) => {
+    const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+    const [messageTitle, setMessageTitle] = useState("");
+    const [messageContent, setMessageContent] = useState("");
+
+    const [loader, setLoader] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("");
+
     const startMatch = () => {
         if (queue.length >= 2) {
             setCurrentMatch([queue[0], queue[1]]);
         } else {
-            window.alert("****** Insufficient Teams ******");
+            setMessageTitle("Error");
+            setMessageContent(
+                "There are not enough teams in the queue to start a match."
+            );
+            setMessageDialogOpen(true);
         }
     };
 
-    const handleWin = (winnerIndex) => {
+    const handleWin = async (winnerIndex) => {
         const winner = currentMatch[winnerIndex];
         const loser = currentMatch[1 - winnerIndex];
+
+        setLoader(true);
+        setLoadingMessage("Updating queue positions...");
 
         setQueue((prevQueue) => {
             const updatedQueue = [winner, ...prevQueue.slice(2), loser];
@@ -23,8 +46,37 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                 setCurrentMatch([]);
             }
 
+            // Update Supabase after state update
+            updatePositionsInSupabase(updatedQueue);
+
             return updatedQueue;
         });
+    };
+
+    const updatePositionsInSupabase = async (updatedQueue) => {
+        setLoadingMessage("Updating queue positions...");
+        setLoader(true);
+        try {
+            const updates = updatedQueue.map((item, index) => ({
+                id: item.id,
+                position: index, // Assign new position based on new order
+                team_name: item.team_name,
+            }));
+
+            console.log("Updating Supabase with:", updates);
+
+            const { error } = await supabase
+                .from("Queue")
+                .upsert(updates, { onConflict: "id" });
+
+            if (error) throw error;
+
+            console.log("Queue positions updated successfully!");
+        } catch (error) {
+            console.error("Error updating positions:", error);
+        } finally {
+            setLoader(false);
+        }
     };
 
     return (
@@ -35,7 +87,7 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
             alignItems="center"
         >
             <Box width="50%" textAlign="center">
-                <Typography variant="h3" fontWeight={800} mb={2}>
+                <Typography variant="h3" fontWeight={700} mb={2}>
                     Current Match
                 </Typography>
                 {currentMatch.length === 2 ? (
@@ -101,6 +153,13 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
                     </Button>
                 )}
             </Box>
+            <MessageDialog
+                open={messageDialogOpen}
+                handleClose={() => setMessageDialogOpen(false)}
+                title={messageTitle}
+                message={messageContent}
+            />
+            <LoadingDialog open={loader} message={loadingMessage} />
         </Box>
     );
 };
@@ -108,8 +167,9 @@ const MatchSection = ({ queue, setQueue, currentMatch, setCurrentMatch }) => {
 export default MatchSection;
 
 MatchSection.propTypes = {
-    queue: PropTypes.arrayOf(PropTypes.string).isRequired,
-    setQueue: PropTypes.func.isRequired,
-    currentMatch: PropTypes.arrayOf(PropTypes.string).isRequired,
-    setCurrentMatch: PropTypes.func.isRequired,
+    queue: PropTypes.arrayOf(PropTypes.string),
+    setQueue: PropTypes.func,
+    currentMatch: PropTypes.arrayOf(PropTypes.string),
+    setCurrentMatch: PropTypes.func,
+    supabase: PropTypes.object,
 };

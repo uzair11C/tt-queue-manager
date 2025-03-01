@@ -2,106 +2,98 @@ import {
     Button,
     Divider,
     Drawer,
-    IconButton,
+    // IconButton,
     List,
     ListItem,
-    ListItemIcon,
     Paper,
     TextField,
     Typography,
 } from "@mui/material";
-import { Delete, DragIndicator } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+// import { Delete } from "@mui/icons-material";
+import { useState } from "react";
 import PropTypes from "prop-types";
+import MessageDialog from "./Dialogs/MessageDialog";
+import LoadingDialog from "./Dialogs/LoadingDialog";
 
 const TeamRegistration = ({
     queue,
     setQueue,
-    currentMatch,
-    setCurrentMatch,
+    // currentMatch,
+    // setCurrentMatch,
     supabase,
 }) => {
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
 
+    const [messageTitle, setMessageTitle] = useState("");
+    const [messageContent, setMessageContent] = useState("");
+    const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+
+    const [loadingDialogOpen, setLoadingDialogOpen] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("");
+
     const addTeam = async () => {
         if (player1.trim() !== "" && player2.trim() !== "") {
-            setQueue([...queue, `${player1} / ${player2}`]);
-            setPlayer1("");
-            setPlayer2("");
-            const { data, error } = await supabase
-                .from("Queue")
-                .insert({ team_name: `${player1} / ${player2}` })
-                .select();
+            try {
+                setLoadingMessage("Requesting approval.....");
+                setLoadingDialogOpen(true);
 
-            console.log("now: ", data);
-            console.log("errror: ", error);
-        } else {
-            window.alert("Please enter the team members");
-        }
-    };
+                setQueue([...queue, `${player1} / ${player2}`]);
+                setPlayer1("");
+                setPlayer2("");
+                const { data, error } = await supabase
+                    .from("Approvals")
+                    .insert({ team_name: `${player1} / ${player2}` })
+                    .select();
 
-    const removeTeam = (index) => {
-        setQueue((prevQueue) => {
-            const updatedQueue = prevQueue.filter((_, i) => i !== index);
-
-            // If a team in the current match is removed, update the match
-            if (currentMatch.includes(prevQueue[index])) {
-                setCurrentMatch(
-                    updatedQueue.length >= 2
-                        ? [updatedQueue[0], updatedQueue[1]]
-                        : []
+                console.log("now: ", data);
+                console.log("errror: ", error);
+                setMessageTitle("Success");
+                setMessageContent(
+                    "Your request has been submitted successfully and is awaiting admin approval. When approved, it will appear in the queue."
                 );
+                setMessageDialogOpen(true);
+            } catch (error) {
+                console.log(
+                    "something went wrong in requesting approval: ",
+                    error
+                );
+            } finally {
+                setLoadingDialogOpen(false);
             }
-
-            return updatedQueue;
-        });
-    };
-
-    const handleDragStart = (e, index) => {
-        e.dataTransfer.setData("text/plain", index);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
-
-    const handleDrop = (e, index) => {
-        e.preventDefault();
-        const draggedIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-        if (draggedIndex !== index) {
-            const updatedQueue = [...queue];
-            const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
-            updatedQueue.splice(index, 0, draggedItem);
-            setQueue(updatedQueue);
-
-            if (updatedQueue.length >= 2) {
-                setCurrentMatch([updatedQueue[0], updatedQueue[1]]);
-            } else {
-                setCurrentMatch([]);
-            }
+        } else {
+            setMessageTitle("Error");
+            setMessageContent("Please enter both player names.");
+            setMessageDialogOpen(true);
         }
     };
 
-    const clearQueue = () => {
-        setQueue([]);
-        setCurrentMatch([]);
-        localStorage.removeItem("queue");
-    };
+    // const removeTeam = (index) => {
+    //     setQueue((prevQueue) => {
+    //         const updatedQueue = prevQueue.filter((_, i) => i !== index);
 
-    useEffect(() => {
-        localStorage.setItem("queue", JSON.stringify(queue));
-    }, [queue]);
+    //         // If a team in the current match is removed, update the match
+    //         if (currentMatch.includes(prevQueue[index])) {
+    //             setCurrentMatch(
+    //                 updatedQueue.length >= 2
+    //                     ? [updatedQueue[0], updatedQueue[1]]
+    //                     : []
+    //             );
+    //         }
+
+    //         return updatedQueue;
+    //     });
+    // };
 
     return (
         <Drawer
             variant="permanent"
             anchor="left"
             sx={{
-                width: { xs: "100%", md: "25%" },
+                width: { xs: "100%", md: "22%" },
                 flexShrink: 0,
                 [`& .MuiDrawer-paper`]: {
-                    width: { xs: "100%", md: "25%" },
+                    width: { xs: "100%", md: "22%" },
                     boxSizing: "border-box",
                     padding: 2,
                     bgcolor: "#1e1e1e",
@@ -137,28 +129,12 @@ const TeamRegistration = ({
                 variant="contained"
                 color="info"
                 onClick={addTeam}
-                sx={{ mt: "5px" }}
+                sx={{ mt: 1 }}
             >
-                Add Team
+                Request Approval
             </Button>
-            <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                mt={2}
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    pb: 1,
-                }}
-            >
+            <Typography variant="subtitle1" fontWeight={700} mt={2}>
                 Queue
-                <IconButton
-                    sx={{ border: "1px solid red" }}
-                    onClick={clearQueue}
-                >
-                    <Delete fontSize="small" color="error" />
-                </IconButton>
             </Typography>
             <Paper
                 variant="outlined"
@@ -173,36 +149,35 @@ const TeamRegistration = ({
                     {queue.map((team, index) => (
                         <ListItem
                             key={index}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, index)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, index)}
-                            secondaryAction={
-                                <IconButton
-                                    edge="end"
-                                    onClick={() => removeTeam(index)}
-                                >
-                                    <Delete fontSize="small" color="error" />
-                                </IconButton>
-                            }
+                            // secondaryAction={
+                            //     <IconButton
+                            //         edge="end"
+                            //         onClick={() => removeTeam(index)}
+                            //     >
+                            //         <Delete fontSize="small" color="error" />
+                            //     </IconButton>
+                            // }
                             divider={<Divider flexItem />}
                             sx={{
-                                cursor: "move",
                                 color: "#ffffff",
                                 display: "flex",
                                 justifyContent: "flex-start",
                                 alignItems: "center",
                             }}
                         >
-                            <ListItemIcon>
-                                <DragIndicator fontSize="small" />
-                            </ListItemIcon>
                             {index + 1}. &nbsp;
                             {team.team_name}
                         </ListItem>
                     ))}
                 </List>
             </Paper>
+            <MessageDialog
+                open={messageDialogOpen}
+                handleClose={() => setMessageDialogOpen(false)}
+                title={messageTitle}
+                message={messageContent}
+            />
+            <LoadingDialog open={loadingDialogOpen} message={loadingMessage} />
         </Drawer>
     );
 };
@@ -210,8 +185,9 @@ const TeamRegistration = ({
 export default TeamRegistration;
 
 TeamRegistration.propTypes = {
-    queue: PropTypes.arrayOf(PropTypes.string).isRequired,
-    setQueue: PropTypes.func.isRequired,
-    currentMatch: PropTypes.arrayOf(PropTypes.string).isRequired,
-    setCurrentMatch: PropTypes.func.isRequired,
+    queue: PropTypes.arrayOf(PropTypes.string),
+    setQueue: PropTypes.func,
+    currentMatch: PropTypes.arrayOf(PropTypes.string),
+    setCurrentMatch: PropTypes.func,
+    supabase: PropTypes.object,
 };
