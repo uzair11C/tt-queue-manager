@@ -2,6 +2,9 @@ import {
     Box,
     Button,
     IconButton,
+    List,
+    ListItem,
+    ListItemText,
     Paper,
     Stack,
     Typography,
@@ -117,24 +120,81 @@ const MatchSection = ({
 
     const showRules = () => {
         const queueRules = (
-            <div>
-                <ol>
-                    <li>
-                        A team must have at least 2 members to be entered into
-                        the queue.
-                    </li>
-                    <li>
-                        No teams can be entered into the queue between 1:50 PM
-                        and 3:00 PM (noon) and 4:50 PM and 5:00 PM (evening).
-                    </li>
-                </ol>
-                <p>
+            <Stack width="100%" direction="column">
+                <List sx={{ listStyle: "decimal", pl: 4 }}>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    A team must have at least 2 members to be
+                                    entered into the queue.
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    No teams can be entered into the queue
+                                    before 1:50 PM (noon) and 4:50 PM (evening).
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    The queue follows a circular queue pattern,
+                                    the losing team will be pushed to the end of
+                                    the queue.
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    Teams who leave the office will be removed
+                                    from the queue.
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    Teams must have at least one partner in the
+                                    playing area, if the other partner does not
+                                    arrive on time, his partner will have the
+                                    right to play with a new member, and the
+                                    faulty member will be removed.
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                    <ListItem sx={{ display: "list-item" }}>
+                        <ListItemText
+                            primary={
+                                <Typography variant="body1">
+                                    If the member does not find another
+                                    teammate, he will be pushed to end of queue.
+                                </Typography>
+                            }
+                        />
+                    </ListItem>
+                </List>
+                <Typography variant="body1" textAlign="left" color="warning">
                     These rules are in place to ensure fairness for all
                     participants. By entering the queue, you acknowledge that
                     you have read and agree to these rules.
-                </p>
-            </div>
+                </Typography>
+            </Stack>
         );
+
         setMessageTitle("Queue Rules");
         setMessageContent(queueRules);
         setMessageDialogOpen(true);
