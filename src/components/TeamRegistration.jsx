@@ -15,13 +15,7 @@ import PropTypes from "prop-types";
 import MessageDialog from "./Dialogs/MessageDialog";
 import LoadingDialog from "./Dialogs/LoadingDialog";
 
-const TeamRegistration = ({
-    queue,
-    setQueue,
-    // currentMatch,
-    // setCurrentMatch,
-    supabase,
-}) => {
+const TeamRegistration = ({ queue, supabase }) => {
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
 
@@ -38,7 +32,7 @@ const TeamRegistration = ({
                 setLoadingMessage("Requesting approval.....");
                 setLoadingDialogOpen(true);
 
-                setQueue([...queue, `${player1} / ${player2}`]);
+                // setQueue([...queue, `${player1} / ${player2}`]);
                 setPlayer1("");
                 setPlayer2("");
                 const { data, error } = await supabase

@@ -50,13 +50,7 @@ function App() {
                     flexDirection: { xs: "column", md: "row" },
                 }}
             >
-                <TeamRegistration
-                    queue={queue}
-                    setQueue={setQueue}
-                    // currentMatch={currentMatch}
-                    // setCurrentMatch={setCurrentMatch}
-                    supabase={supabase}
-                />
+                <TeamRegistration queue={queue} supabase={supabase} />
                 <MatchSection
                     queue={queue}
                     setQueue={setQueue}
