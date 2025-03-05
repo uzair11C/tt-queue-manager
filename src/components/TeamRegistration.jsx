@@ -64,7 +64,10 @@ const TeamRegistration = ({ queue, setQueue, supabase }) => {
                 setPlayer2("");
                 const { data, error } = await supabase
                     .from("Queue")
-                    .insert({ team_name: `${player1} / ${player2}` })
+                    .insert({
+                        team_name: `${player1} / ${player2}`,
+                        position: queue.length,
+                    })
                     .select();
                 setQueue([...queue, data[0]]);
 
