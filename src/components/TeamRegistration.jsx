@@ -1,21 +1,19 @@
 import {
     Button,
     Divider,
-    Drawer,
-    // IconButton,
     List,
     ListItem,
     Paper,
+    Stack,
     TextField,
     Typography,
 } from "@mui/material";
-// import { Delete } from "@mui/icons-material";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import MessageDialog from "./Dialogs/MessageDialog";
 import LoadingDialog from "./Dialogs/LoadingDialog";
 
-const TeamRegistration = ({ queue, supabase }) => {
+const TeamRegistration = ({ queue, setQueue, supabase }) => {
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
 
@@ -28,30 +26,60 @@ const TeamRegistration = ({ queue, supabase }) => {
 
     const addTeam = async () => {
         if (player1.trim() !== "" && player2.trim() !== "") {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            // Convert current time to minutes for easier comparison
+            const currentTime = hours * 60 + minutes;
+            const noonQueueStart = 12 * 60 + 50; // 12:50 PM
+            const noonQueueEnd = 14 * 60; // 2:00 PM
+            const eveningQueueStart = 16 * 60 + 50; // 4:50 PM
+            const eveningQueueEnd = 18 * 60; // 6:00 PM
+
+            // Queue is open only between 12:50-2:00 PM for noon matches, or 4:50-6:00 PM for evening matches
+            const isQueueOpen =
+                (currentTime >= noonQueueStart &&
+                    currentTime <= noonQueueEnd) ||
+                (currentTime >= eveningQueueStart &&
+                    currentTime <= eveningQueueEnd);
+
+            if (!isQueueOpen) {
+                setMessageTitle("Queue Closed ❌");
+                setMessageContent(
+                    "Queue opens at 12:50 PM for break matches and 4:50 PM for off-time matches."
+                );
+                setMessageDialogOpen(true);
+                setPlayer1("");
+                setPlayer2("");
+
+                return;
+            }
+
             try {
-                setLoadingMessage("Requesting approval.....");
+                setLoadingMessage("Adding to queue.....");
                 setLoadingDialogOpen(true);
 
-                // setQueue([...queue, `${player1} / ${player2}`]);
                 setPlayer1("");
                 setPlayer2("");
                 const { data, error } = await supabase
-                    .from("Approvals")
+                    .from("Queue")
                     .insert({ team_name: `${player1} / ${player2}` })
                     .select();
+                setQueue([...queue, data[0]]);
 
                 console.log("now: ", data);
                 console.log("errror: ", error);
-                setMessageTitle("Success");
-                setMessageContent(
-                    "Your request has been submitted successfully and is awaiting admin approval. When approved, it will appear in the queue."
-                );
-                setMessageDialogOpen(true);
             } catch (error) {
                 console.log(
                     "something went wrong in requesting approval: ",
                     error
                 );
+                setMessageTitle("Error");
+                setMessageContent(
+                    "Could not join queue, please check your internet connection and try again."
+                );
+                setMessageDialogOpen(true);
             } finally {
                 setLoadingDialogOpen(false);
             }
@@ -62,40 +90,22 @@ const TeamRegistration = ({ queue, supabase }) => {
         }
     };
 
-    // const removeTeam = (index) => {
-    //     setQueue((prevQueue) => {
-    //         const updatedQueue = prevQueue.filter((_, i) => i !== index);
-
-    //         // If a team in the current match is removed, update the match
-    //         if (currentMatch.includes(prevQueue[index])) {
-    //             setCurrentMatch(
-    //                 updatedQueue.length >= 2
-    //                     ? [updatedQueue[0], updatedQueue[1]]
-    //                     : []
-    //             );
-    //         }
-
-    //         return updatedQueue;
-    //     });
-    // };
-
     return (
-        <Drawer
-            variant="permanent"
-            anchor="left"
+        <Stack
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="center"
             sx={{
-                width: { xs: "100%", md: "22%" },
-                flexShrink: 0,
-                [`& .MuiDrawer-paper`]: {
-                    width: { xs: "100%", md: "22%" },
-                    boxSizing: "border-box",
-                    padding: 2,
-                    bgcolor: "#1e1e1e",
-                    color: "#ffffff",
-                },
+                width: { xs: "85%", md: "25%" },
+                height: "85%",
+                boxSizing: "border-box",
+                padding: 3,
+                bgcolor: "#1e1e1e",
+                color: "#ffffff",
+                borderRadius: "8px",
             }}
         >
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h5" fontWeight={700}>
                 Enter Team Members
             </Typography>
             <TextField
@@ -125,9 +135,15 @@ const TeamRegistration = ({ queue, supabase }) => {
                 onClick={addTeam}
                 sx={{ mt: 1 }}
             >
-                Request Approval
+                Join Queue
             </Button>
-            <Typography variant="subtitle1" fontWeight={700} mt={2}>
+            <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                mt={2}
+                width="100%"
+                textAlign="left"
+            >
                 Queue
             </Typography>
             <Paper
@@ -135,6 +151,8 @@ const TeamRegistration = ({ queue, supabase }) => {
                 sx={{
                     p: 1,
                     height: "100%",
+                    width: "100%",
+                    boxSizing: "border-box",
                     overflowY: "auto",
                     bgcolor: "#2c2c2c",
                 }}
@@ -143,14 +161,6 @@ const TeamRegistration = ({ queue, supabase }) => {
                     {queue.map((team, index) => (
                         <ListItem
                             key={index}
-                            // secondaryAction={
-                            //     <IconButton
-                            //         edge="end"
-                            //         onClick={() => removeTeam(index)}
-                            //     >
-                            //         <Delete fontSize="small" color="error" />
-                            //     </IconButton>
-                            // }
                             divider={<Divider flexItem />}
                             sx={{
                                 color: "#ffffff",
@@ -172,7 +182,7 @@ const TeamRegistration = ({ queue, supabase }) => {
                 message={messageContent}
             />
             <LoadingDialog open={loadingDialogOpen} message={loadingMessage} />
-        </Drawer>
+        </Stack>
     );
 };
 
@@ -181,7 +191,5 @@ export default TeamRegistration;
 TeamRegistration.propTypes = {
     queue: PropTypes.arrayOf(PropTypes.string),
     setQueue: PropTypes.func,
-    currentMatch: PropTypes.arrayOf(PropTypes.string),
-    setCurrentMatch: PropTypes.func,
     supabase: PropTypes.object,
 };

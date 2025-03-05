@@ -16,9 +16,9 @@ const MessageDialog = ({ open, handleClose, title, message }) => {
             sx={{
                 ".MuiPaper-root": {
                     color: "#FFFFFF",
-                    borderRadius: "5px",
+                    borderRadius: "8px",
                     boxSizing: "border-box",
-                    width: "30%",
+                    width: { xs: "90%", sm: "50%", lg: "30%" },
                     p: "1%",
                 },
             }}
@@ -39,7 +39,12 @@ const MessageDialog = ({ open, handleClose, title, message }) => {
                     alignItems: "center",
                 }}
             >
-                <Button variant="contained" color="info" onClick={handleClose}>
+                <Button
+                    variant="contained"
+                    color="info"
+                    onClick={handleClose}
+                    sx={{ fontSize: "1rem" }}
+                >
                     Okay
                 </Button>
             </DialogActions>
